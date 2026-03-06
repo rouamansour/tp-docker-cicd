@@ -18,9 +18,9 @@ const pool = new Pool({
 app.use(
   cors({
     origin: [
-      "http://localhost:8080",   // Frontend via host port
-      "http://127.0.0.1:8080",   // Alternative localhost
-      "http://backend"           // Docker service name (internal tests)
+      "http://localhost:8080",   // garde pour dev local
+      "http://127.0.0.1:8080",   // alternative dev local
+      "https://tp-docker-cicd-g0csvinp1-rouamansours-projects.vercel.app" // frontend Vercel
     ],
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
