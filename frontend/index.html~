@@ -15,31 +15,35 @@
   </div>
 
   <script>
-    async function fetchData() {
-  try {
-    // Fetch API status
-    const apiResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api`);
-    if (!apiResponse.ok) throw new Error("API request failed");
-    const apiData = await apiResponse.json();
-    document.getElementById("api-response").innerText =
-      JSON.stringify(apiData, null, 2);
+    <script>
+  const API_URL = "https://tp-docker-cicd-9g93.onrender.com"; // backend root, NOT /api
 
-    // Fetch database data
-    const dbResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/db`);
-    if (!dbResponse.ok) throw new Error("Database request failed");
-    const dbData = await dbResponse.json();
-    document.getElementById("db-response").innerText =
-      JSON.stringify(dbData, null, 2);
+  async function fetchData() {
+    try {
+      // API route
+      const apiResponse = await fetch(`${API_URL}/api`);
+      if (!apiResponse.ok) throw new Error("API request failed");
+      const apiData = await apiResponse.json();
+      document.getElementById("api-response").innerText =
+        JSON.stringify(apiData, null, 2);
 
-  } catch (error) {
-    document.getElementById("api-response").innerText =
-      `Error: ${error.message}`;
-    document.getElementById("db-response").innerText =
-      `Error: ${error.message}`;
+      // Database route
+      const dbResponse = await fetch(`${API_URL}/db`);
+      if (!dbResponse.ok) throw new Error("Database request failed");
+      const dbData = await dbResponse.json();
+      document.getElementById("db-response").innerText =
+        JSON.stringify(dbData, null, 2);
+
+    } catch (error) {
+      document.getElementById("api-response").innerText =
+        `Error: ${error.message}`;
+      document.getElementById("db-response").innerText =
+        `Error: ${error.message}`;
+    }
   }
-}
 
-setTimeout(fetchData, 1000);
+  setTimeout(fetchData, 1000);
+</script>
   </script>
 </body>
 </html>

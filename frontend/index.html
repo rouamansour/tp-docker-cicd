@@ -15,19 +15,16 @@
   </div>
 
   <script>
-    // 🔹 Mettez ici l'URL de votre backend Render
-    const API_URL = "https://tp-docker-cicd-9g93.onrender.com/api";
+    const API_URL = "https://tp-docker-cicd-9g93.onrender.com"; // backend Render
 
     async function fetchData() {
       try {
-        // Fetch API status
         const apiResponse = await fetch(`${API_URL}/api`);
         if (!apiResponse.ok) throw new Error("API request failed");
         const apiData = await apiResponse.json();
         document.getElementById("api-response").innerText =
           JSON.stringify(apiData, null, 2);
 
-        // Fetch database data
         const dbResponse = await fetch(`${API_URL}/db`);
         if (!dbResponse.ok) throw new Error("Database request failed");
         const dbData = await dbResponse.json();
