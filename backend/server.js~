@@ -1,7 +1,6 @@
-// server.js
-const express = require("express"); // Web framework
-const cors = require("cors");       // CORS management
-const { Pool } = require("pg");     // PostgreSQL client
+const express = require("express");
+const cors = require("cors");
+const { Pool } = require("pg");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,33 +8,61 @@ const PORT = process.env.PORT || 3000;
 // Database connection configuration for Render PostgreSQL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }, // nécessaire pour Render
+  ssl: { rejectUnauthorized: false },
 });
+
+// ⚡ Initialise la base de données avant de démarrer le serveur
+async function initDb() {
+  try {
+    // Crée la table si elle n'existe pas
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Insère un utilisateur test si aucun utilisateur n'existe
+    const { rows } = await pool.query("SELECT COUNT(*) FROM users");
+    if (parseInt(rows[0].count) === 0) {
+      await pool.query(
+        `INSERT INTO users (username, email, password) VALUES ($1, $2, $3)`,
+        ["testuser", "test@example.com", "password123"]
+      );
+      console.log("Utilisateur test ajouté : testuser / test@example.com");
+    }
+
+    console.log("Base de données prête !");
+  } catch (err) {
+    console.error("Erreur lors de l'initialisation de la DB:", err);
+  }
+}
 
 // Middleware
 app.use(express.json());
 
-// CORS MIDDLEWARE: Allow cross-origin requests
 app.use(
   cors({
     origin: [
-      "http://localhost:8080", // garde pour dev local
+      "http://localhost:8080",
       "http://127.0.0.1:8080",
-      "https://tp-docker-cicd-g0csvinp1-rouamansours-projects.vercel.app", // frontend Vercel
+      "https://tp-docker-cicd-g0csvinp1-rouamansours-projects.vercel.app",
     ],
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
   })
 );
 
-// ROUTE RACINE: éviter "Cannot GET /"
+// ROUTES
 app.get("/", (req, res) => {
   res.send(
     "Backend is running! Use /api for API status or /db to access the database."
   );
 });
 
-// MAIN API ROUTE
 app.get("/api", (req, res) => {
   res.json({
     message: "Hello from Backend!",
@@ -45,7 +72,6 @@ app.get("/api", (req, res) => {
   });
 });
 
-// DATABASE ROUTE: Retrieve data from database
 app.get("/db", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM users");
@@ -64,9 +90,11 @@ app.get("/db", async (req, res) => {
   }
 });
 
-// START SERVER
-app.listen(PORT, () => {
-  console.log(`Backend listening on port ${PORT}`);
-  console.log(`API endpoint: http://localhost:${PORT}/api`);
-  console.log(`DB endpoint: http://localhost:${PORT}/db`);
+// ⚡ Démarre le serveur seulement après que la DB soit prête
+initDb().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Backend listening on port ${PORT}`);
+    console.log(`API endpoint: http://localhost:${PORT}/api`);
+    console.log(`DB endpoint: http://localhost:${PORT}/db`);
+  });
 });

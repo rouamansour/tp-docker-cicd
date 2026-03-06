@@ -44,17 +44,7 @@ async function initDb() {
 // Middleware
 app.use(express.json());
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:8080",
-      "http://127.0.0.1:8080",
-      "https://tp-docker-cicd-g0csvinp1-rouamansours-projects.vercel.app",
-    ],
-    methods: ["GET", "POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type"],
-  })
-);
+app.use(cors()); // autorise toutes les origines
 
 // ROUTES
 app.get("/", (req, res) => {
